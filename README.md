@@ -38,6 +38,14 @@ GitHub Actions workflow: `.github/workflows/ci.yml`
 - `test` job: PostgreSQL-backed RSpec
 - `deploy-render` job: triggers Render deploy on `push` to `main` after checks pass
 
+## Release Gate
+- `main` must pass all required checks before deployment:
+  - `security`
+  - `lint`
+  - `test`
+- `deploy-render` is CI-gated behind those checks and is the canonical production deployment path.
+- Any change that modifies behavior should include or update automated tests so CI can validate it.
+
 ## Deployment (Render)
 Blueprint file: `render.yaml`
 - Web service build: `bundle install && bundle exec rails assets:precompile`

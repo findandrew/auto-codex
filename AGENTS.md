@@ -52,6 +52,7 @@ Repository-wide operating rules for autonomous coding agents.
 - `bin/bundler-audit --update`
 - `bin/rubocop`
 - `bundle exec rspec`
+- For deploy pipeline changes, confirm `.github/workflows/ci.yml` still gates `deploy-render` behind `security`, `lint`, and `test`.
 
 If a check cannot run, explain exactly why and what remains unverified.
 

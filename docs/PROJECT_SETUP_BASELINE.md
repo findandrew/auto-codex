@@ -66,6 +66,12 @@ Canonical setup record for this repository. This is the source of truth for futu
   - `/` returns `Hello, world!`
   - `/up` returns healthy status page
 
+## CI/CD gate requirements
+- CI jobs `security`, `lint`, and `test` are required branch-protection checks for `main`.
+- Production deploy must happen through CI `deploy-render` job after those checks succeed.
+- Direct manual production deploys should be treated as emergency fallback only.
+- Behavior changes must ship with automated tests so release gating remains meaningful.
+
 ## GitHub integration state
 - Remote: `git@github.com:findandrew/auto-codex.git`
 - Default branch used in this bootstrap: `main`
