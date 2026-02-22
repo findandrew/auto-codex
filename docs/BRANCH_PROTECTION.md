@@ -18,6 +18,10 @@ Configure these settings on your default branch (`main`) in GitHub.
 - `lint`
 - `test`
 
+## Fast apply (API)
+If you have a GitHub token with repo admin scope:
+- `GITHUB_TOKEN=... /Users/andrew/Git/auto-codex/scripts/lockdown_github.sh findandrew auto-codex`
+
 ## Recommended security features
 - Secret scanning + push protection.
 - Dependabot alerts and security updates.

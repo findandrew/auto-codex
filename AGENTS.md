@@ -16,9 +16,11 @@ Repository-wide operating rules for autonomous coding agents.
 1. Restate goal, assumptions, and constraints.
 2. Read relevant files before editing.
 3. Make a short plan for non-trivial tasks.
-4. Implement smallest viable diff.
-5. Run required checks locally.
-6. Report changed files, commands run, and risks.
+4. Create a feature branch (`codex/<task-name>`), never commit directly to `main`.
+5. Implement smallest viable diff.
+6. Add or update tests for every behavior change.
+7. Run required checks locally.
+8. Report changed files, commands run, and risks.
 
 ## Rails Guardrails
 - Follow Rails conventions over custom architecture.
@@ -38,6 +40,7 @@ Repository-wide operating rules for autonomous coding agents.
 - Use environment variables for runtime config.
 - Do not run destructive commands unless explicitly requested.
 - Ask before breaking API/DB changes.
+- Do not push directly to `main` unless explicitly requested by the user for emergency/admin operations.
 
 ## Required Checks Before Completion
 - `bin/brakeman --no-pager`
@@ -46,6 +49,10 @@ Repository-wide operating rules for autonomous coding agents.
 - `bundle exec rspec`
 
 If a check cannot run, explain exactly why and what remains unverified.
+
+## Testing Policy
+- Every functional change must include automated test coverage (request/model/service/system spec as appropriate).
+- If adding tests is impossible for a specific change, explicitly document why and propose a follow-up test task.
 
 ## Definition of Done
 - Acceptance criteria satisfied.

@@ -26,6 +26,17 @@
 - Merge only when checks pass.
 - Add lessons to docs if recurring.
 
+## Branching and PR model
+- Agents should implement work on feature branches (`codex/<task-name>`), not `main`.
+- Agents should open pull requests to `main`.
+- Reviews should happen in GitHub PRs (human reviewer and/or designated review agent).
+- Merge only after required checks pass and required approvals are satisfied.
+
+## Multi-agent operating model
+- Build agent: writes code and tests in a PR.
+- Review agent: performs PR review focused on bugs, regressions, and test adequacy.
+- Merge/deploy gate: branch protection + required CI checks enforce safe promotion to `main`.
+
 ## Task sizing guidelines
 - Good: "Add endpoint X with tests and docs."
 - Too large: "Build full auth system + billing + admin UI."

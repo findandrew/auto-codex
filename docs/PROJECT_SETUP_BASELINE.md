@@ -98,3 +98,4 @@ Canonical setup record for this repository. This is the source of truth for futu
 
 ## Notes
 - Policy for future agents: upgrade runtime first; do not downgrade framework to fit old runtimes unless explicitly requested.
+- Policy for collaboration: agents should work on `codex/*` branches and open PRs to `main`; direct pushes to `main` are reserved for explicit emergency/admin instruction.
