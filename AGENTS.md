@@ -42,6 +42,11 @@ Repository-wide operating rules for autonomous coding agents.
 - Ask before breaking API/DB changes.
 - Do not push directly to `main` unless explicitly requested by the user for emergency/admin operations.
 
+## Review and Merge Policy
+- Open PRs for all non-emergency changes.
+- In solo-maintainer mode, self-review in the PR is acceptable when required checks pass.
+- In multi-maintainer mode, require at least one external approving review.
+
 ## Required Checks Before Completion
 - `bin/brakeman --no-pager`
 - `bin/bundler-audit --update`
@@ -58,6 +63,7 @@ If a check cannot run, explain exactly why and what remains unverified.
 - Acceptance criteria satisfied.
 - Required checks pass or blockers documented.
 - Docs updated for workflow/behavior changes.
+- For infrastructure/scaffolding/governance/CI/CD changes, update `docs/PROJECT_SETUP_BASELINE.md` in the same change.
 - Final report includes:
   - files changed
   - verification commands and outcomes

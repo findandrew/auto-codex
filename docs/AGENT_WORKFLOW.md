@@ -31,6 +31,7 @@
 - Agents should open pull requests to `main`.
 - Reviews should happen in GitHub PRs (human reviewer and/or designated review agent).
 - Merge only after required checks pass and required approvals are satisfied.
+- For solo-maintainer repositories, set required approvals to `0` while keeping PR-required and status checks enforced.
 
 ## Multi-agent operating model
 - Build agent: writes code and tests in a PR.
@@ -49,3 +50,7 @@
 - When tooling/runtime versions are out of date, upgrade the environment first (for example Ruby, Node, package manager).
 - Avoid selecting legacy framework or gem versions as a workaround for an outdated runtime unless explicitly directed.
 - After environment upgrades, document final versions and bootstrap steps in the setup record.
+
+## Baseline maintenance rule
+- For infrastructure/scaffolding/governance/CI/CD/security-process changes, update `docs/PROJECT_SETUP_BASELINE.md` in the same PR.
+- Keep that file final-state oriented: include decisions and resulting configuration, not trial-and-error history.

@@ -4,7 +4,9 @@ Configure these settings on your default branch (`main`) in GitHub.
 
 ## Required settings
 - Require a pull request before merging.
-- Require at least 1 approval.
+- Require approvals:
+  - Solo-maintainer mode: `0` (self-review in PR + required checks)
+  - Multi-maintainer mode: at least `1`
 - Require review from Code Owners.
 - Dismiss stale approvals when new commits are pushed.
 - Require status checks to pass before merging.
