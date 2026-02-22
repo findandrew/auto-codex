@@ -5,6 +5,6 @@ RSpec.describe "Pages", type: :request do
     get root_path
 
     expect(response).to have_http_status(:ok)
-    expect(response.body).to include("Hello, world!")
+    expect(response.body).to include("Hello, world! Welcome to AutoCodex.")
   end
 end
