@@ -3,17 +3,21 @@ set -euo pipefail
 
 # Usage:
 #   GITHUB_TOKEN=... ./scripts/lockdown_github.sh [owner] [repo]
+# Optional:
+#   REQUIRED_APPROVALS=0|1 (default: 0 for solo-maintainer mode)
 # Defaults:
 #   owner=findandrew repo=auto-codex
 
 OWNER="${1:-findandrew}"
 REPO="${2:-auto-codex}"
+REQUIRED_APPROVALS="${REQUIRED_APPROVALS:-0}"
 : "${GITHUB_TOKEN:?Set GITHUB_TOKEN with repo admin scope}"
 
 API="https://api.github.com/repos/${OWNER}/${REPO}"
 AUTH=(-H "Authorization: Bearer ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json")
 
 echo "Configuring branch protection for ${OWNER}/${REPO}: main"
+echo "Required approvals: ${REQUIRED_APPROVALS}"
 
 curl -sS -X PUT "${API}/branches/main/protection" \
   "${AUTH[@]}" \
@@ -27,7 +31,7 @@ curl -sS -X PUT "${API}/branches/main/protection" \
     "required_pull_request_reviews": {
       "dismiss_stale_reviews": true,
       "require_code_owner_reviews": true,
-      "required_approving_review_count": 1,
+      "required_approving_review_count": '"${REQUIRED_APPROVALS}"',
       "require_last_push_approval": false
     },
     "restrictions": null,

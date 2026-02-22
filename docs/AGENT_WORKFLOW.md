@@ -31,6 +31,7 @@
 - Agents should open pull requests to `main`.
 - Reviews should happen in GitHub PRs (human reviewer and/or designated review agent).
 - Merge only after required checks pass and required approvals are satisfied.
+- For solo-maintainer repositories, set required approvals to `0` while keeping PR-required and status checks enforced.
 
 ## Multi-agent operating model
 - Build agent: writes code and tests in a PR.

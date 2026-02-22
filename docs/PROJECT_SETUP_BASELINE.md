@@ -75,7 +75,7 @@ Canonical setup record for this repository. This is the source of truth for futu
   - PR required for merge
   - required checks: `security`, `lint`, `test`
   - branch up-to-date required (`strict` checks)
-  - 1 approving review required
+  - required approvals set to `0` for solo-maintainer mode
   - code owner review required
   - stale reviews dismissed on new commits
   - enforce for admins enabled
@@ -112,3 +112,4 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Policy for future agents: upgrade runtime first; do not downgrade framework to fit old runtimes unless explicitly requested.
 - Policy for collaboration: agents should work on `codex/*` branches and open PRs to `main`; direct pushes to `main` are reserved for explicit emergency/admin instruction.
 - Policy for baseline docs: whenever infra/scaffolding/governance/CI/CD setup changes, update this file in the same PR.
+- Solo repository policy: keep PR-required + required checks, but use `0` required approvals so a single maintainer can merge after self-review.
