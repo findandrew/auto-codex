@@ -33,6 +33,7 @@ Canonical setup record for this repository. This is the source of truth for futu
    - `security`: Brakeman + Bundler Audit
    - `lint`: RuboCop
    - `test`: PostgreSQL-backed RSpec
+   - `deploy-render`: on `push` to `main`, trigger Render deploy after checks pass
 7. Add Render deployment blueprint:
    - `render.yaml` with web service + managed PostgreSQL
    - pre-deploy migrations and `/up` health check
@@ -69,6 +70,10 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Remote: `git@github.com:findandrew/auto-codex.git`
 - Default branch used in this bootstrap: `main`
 - CI workflow in use: `/Users/andrew/Git/auto-codex/.github/workflows/ci.yml`
+- Render deploy from CI is configured in `deploy-render` job.
+- Required GitHub Actions configuration:
+  - Secret: `RENDER_API_KEY`
+  - Variable: `RENDER_SERVICE_ID` = `srv-d6dmaa14tr6s73culd80`
 - Example successful run URL:
   - `https://github.com/findandrew/auto-codex/actions/runs/22284656064`
 - Branch protection state on `main`:
@@ -98,6 +103,7 @@ Canonical setup record for this repository. This is the source of truth for futu
 ## Known deployment gotchas
 - If Render build fails with missing `secret_key_base`, add `SECRET_KEY_BASE` env var and redeploy.
 - Patch-level Ruby pins can fail on hosted builders; prefer a supported `3.4.x` strategy and keep Gemfile Ruby range compatible (`>= 3.4.4`, `< 3.5`).
+- If Render auto-deploy webhooks are inconsistent, CI-triggered deploy via `deploy-render` is the canonical release path.
 
 ## New-project reuse checklist
 - Copy `AGENTS.md`, `docs/PROJECT_SETUP_BASELINE.md`, and `.github` governance files first.

@@ -36,6 +36,7 @@ GitHub Actions workflow: `.github/workflows/ci.yml`
 - `security` job: Brakeman + Bundler Audit
 - `lint` job: RuboCop
 - `test` job: PostgreSQL-backed RSpec
+- `deploy-render` job: triggers Render deploy on `push` to `main` after checks pass
 
 ## Deployment (Render)
 Blueprint file: `render.yaml`
@@ -43,6 +44,9 @@ Blueprint file: `render.yaml`
 - Start: `bundle exec puma -C config/puma.rb`
 - Pre-deploy migration: `bundle exec rails db:migrate`
 - Health check: `/up`
+- GitHub Actions deploy inputs:
+  - Repository secret: `RENDER_API_KEY`
+  - Repository variable: `RENDER_SERVICE_ID`
 
 ## Governance
 - Agent operating rules: `AGENTS.md`
