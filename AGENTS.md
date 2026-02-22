@@ -58,6 +58,7 @@ If a check cannot run, explain exactly why and what remains unverified.
 - Acceptance criteria satisfied.
 - Required checks pass or blockers documented.
 - Docs updated for workflow/behavior changes.
+- For infrastructure/scaffolding/governance/CI/CD changes, update `docs/PROJECT_SETUP_BASELINE.md` in the same change.
 - Final report includes:
   - files changed
   - verification commands and outcomes

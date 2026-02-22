@@ -71,6 +71,18 @@ Canonical setup record for this repository. This is the source of truth for futu
 - CI workflow in use: `/Users/andrew/Git/auto-codex/.github/workflows/ci.yml`
 - Example successful run URL:
   - `https://github.com/findandrew/auto-codex/actions/runs/22284656064`
+- Branch protection state on `main`:
+  - PR required for merge
+  - required checks: `security`, `lint`, `test`
+  - branch up-to-date required (`strict` checks)
+  - 1 approving review required
+  - code owner review required
+  - stale reviews dismissed on new commits
+  - enforce for admins enabled
+  - force push disabled
+  - branch deletion disabled
+  - linear history required
+  - conversation resolution required
 
 ## Render integration state
 - Web service: `auto-codex-web`
@@ -99,3 +111,4 @@ Canonical setup record for this repository. This is the source of truth for futu
 ## Notes
 - Policy for future agents: upgrade runtime first; do not downgrade framework to fit old runtimes unless explicitly requested.
 - Policy for collaboration: agents should work on `codex/*` branches and open PRs to `main`; direct pushes to `main` are reserved for explicit emergency/admin instruction.
+- Policy for baseline docs: whenever infra/scaffolding/governance/CI/CD setup changes, update this file in the same PR.
