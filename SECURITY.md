@@ -4,7 +4,7 @@
 This starter is a template repository. Define supported release branches/tags when your product ships.
 
 ## Reporting a Vulnerability
-For now, report privately to: `REPLACE_WITH_SECURITY_CONTACT`.
+For now, report privately to: `mail@andrewjm.co`.
 
 Please include:
 - Description and impact
