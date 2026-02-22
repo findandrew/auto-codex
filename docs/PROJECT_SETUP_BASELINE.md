@@ -8,7 +8,7 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Final state only; excludes intermediate trial/error.
 
 ## Final decisions
-- Language/runtime: Ruby `3.4.8`
+- Language/runtime: Ruby `3.4.x` (repo pin `.ruby-version` is `3.4.4`, local install includes `3.4.8`)
 - Framework: Rails `8.1.x`
 - Database: PostgreSQL
 - Test framework: RSpec
@@ -38,6 +38,8 @@ Canonical setup record for this repository. This is the source of truth for futu
    - pre-deploy migrations and `/up` health check
 8. Enforce guardrails and branch governance docs.
 9. Run validation checks and resolve all failures.
+10. Push `main` to GitHub remote and verify Actions run succeeds.
+11. Provision Render PostgreSQL and web service, set required env vars, and verify public URL.
 
 ## Current implementation map
 - Agent policy: `/Users/andrew/Git/auto-codex/AGENTS.md`
@@ -58,6 +60,32 @@ Canonical setup record for this repository. This is the source of truth for futu
 - `bin/rubocop`
 - `bundle exec rspec`
 - `python3 -m pre_commit run --files $(rg --files)`
+- Verify GitHub Actions run for `.github/workflows/ci.yml` is green.
+- Verify hosted Render URLs:
+  - `/` returns `Hello, world!`
+  - `/up` returns healthy status page
+
+## GitHub integration state
+- Remote: `git@github.com:findandrew/auto-codex.git`
+- Default branch used in this bootstrap: `main`
+- CI workflow in use: `/Users/andrew/Git/auto-codex/.github/workflows/ci.yml`
+- Example successful run URL:
+  - `https://github.com/findandrew/auto-codex/actions/runs/22284656064`
+
+## Render integration state
+- Web service: `auto-codex-web`
+- Public URL: `https://auto-codex-web.onrender.com`
+- Database: `auto-codex-db` (Postgres 16, free plan for initial bootstrap)
+- Required env vars on Render service:
+  - `RAILS_ENV=production`
+  - `RAILS_LOG_TO_STDOUT=enabled`
+  - `WEB_CONCURRENCY=2`
+  - `DATABASE_URL` (from Render Postgres connection string)
+  - `SECRET_KEY_BASE` (generated in Render env vars)
+
+## Known deployment gotchas
+- If Render build fails with missing `secret_key_base`, add `SECRET_KEY_BASE` env var and redeploy.
+- Patch-level Ruby pins can fail on hosted builders; prefer a supported `3.4.x` strategy and keep Gemfile Ruby range compatible (`>= 3.4.4`, `< 3.5`).
 
 ## New-project reuse checklist
 - Copy `AGENTS.md`, `docs/PROJECT_SETUP_BASELINE.md`, and `.github` governance files first.
