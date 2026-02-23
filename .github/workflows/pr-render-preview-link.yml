@@ -19,6 +19,7 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          RENDER_SERVICE_ID: ${{ vars.RENDER_SERVICE_ID }}
         run: |
           python3 - <<'PY'
           import json
@@ -92,10 +93,15 @@ jobs:
           if preview_url:
               section = f"Render preview: {preview_url}"
           else:
+              dashboard_link = ""
+              service_id = os.environ.get("RENDER_SERVICE_ID") or ""
+              if service_id:
+                  dashboard_link = f" Render Previews dashboard: https://dashboard.render.com/web/{service_id}/previews."
               section = (
                   "Preview not available yet. "
                   "If Render PR previews are enabled, wait a minute and re-run this workflow from Actions. "
                   "Otherwise use the Render dashboard to verify preview configuration."
+                  + dashboard_link
               )
 
           new_body = upsert_preview_section(current_body, section)
