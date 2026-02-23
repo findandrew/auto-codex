@@ -58,7 +58,7 @@ Blueprint file: `render.yaml`
   - Repository variable: `RENDER_SERVICE_ID`
 - Render PR previews:
   - Service setting: `previews.generation=automatic`
-  - PR descriptions include preview URL via automation markers in PR template
+  - PR descriptions include preview URL via automation markers in PR template (or an explicit unavailable status if Render has not emitted a preview URL yet)
 
 ## Governance
 - Agent operating rules: `AGENTS.md`

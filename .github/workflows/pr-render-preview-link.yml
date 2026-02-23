@@ -57,7 +57,7 @@ jobs:
           def find_preview_url():
               # Render preview deployments are surfaced as GitHub deployments/statuses.
               # Poll to allow Render time to create and publish the deployment status.
-              for _ in range(60):
+              for _ in range(12):
                   q = urllib.parse.urlencode({"sha": head_sha, "per_page": 100})
                   deployments = gh_json("GET", f"{api_base}/deployments?{q}")
 
@@ -92,7 +92,11 @@ jobs:
           if preview_url:
               section = f"Render preview: {preview_url}"
           else:
-              section = "Preview not available yet. Check Render deploy status in GitHub checks."
+              section = (
+                  "Preview not available yet. "
+                  "If Render PR previews are enabled, wait a minute and re-run this workflow from Actions. "
+                  "Otherwise use the Render dashboard to verify preview configuration."
+              )
 
           new_body = upsert_preview_section(current_body, section)
           if new_body != current_body:

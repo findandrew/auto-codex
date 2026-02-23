@@ -113,6 +113,7 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Patch-level Ruby pins can fail on hosted builders; prefer a supported `3.4.x` strategy and keep Gemfile Ruby range compatible (`>= 3.4.4`, `< 3.5`).
 - If Render auto-deploy webhooks are inconsistent, CI-triggered deploy via `deploy-render` is the canonical release path.
 - PR preview URL may take a few minutes after PR open/sync; preview-link workflow polls GitHub deployments for Render environment URL.
+- If no Render preview URL is emitted for a PR, the PR description is updated with an explicit unavailable message instead of a broken link.
 
 ## New-project reuse checklist
 - Copy `AGENTS.md`, `docs/PROJECT_SETUP_BASELINE.md`, and `.github` governance files first.
