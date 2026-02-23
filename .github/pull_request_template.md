@@ -1,6 +1,11 @@
 ## Summary
 Describe what changed and why.
 
+## Render Preview
+<!-- render-preview-link:start -->
+Pending: preview link will be added automatically.
+<!-- render-preview-link:end -->
+
 ## Scope
 - In scope:
 - Out of scope:

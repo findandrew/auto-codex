@@ -1,0 +1,100 @@
+name: pr-render-preview-link
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+  deployments: read
+
+jobs:
+  update-pr-description:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add Render preview link to PR description
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import re
+          import time
+          import urllib.parse
+          import urllib.request
+
+          token = os.environ["GITHUB_TOKEN"]
+          repo = os.environ["GITHUB_REPOSITORY"]
+          pr_number = os.environ["PR_NUMBER"]
+          head_sha = os.environ["PR_HEAD_SHA"]
+
+          api_base = f"https://api.github.com/repos/{repo}"
+          headers = {
+              "Authorization": f"Bearer {token}",
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+              "User-Agent": "codex-pr-render-preview-link",
+          }
+
+          start_marker = "<!-- render-preview-link:start -->"
+          end_marker = "<!-- render-preview-link:end -->"
+
+          def gh_json(method, url, payload=None):
+              data = None
+              req_headers = dict(headers)
+              if payload is not None:
+                  data = json.dumps(payload).encode()
+                  req_headers["Content-Type"] = "application/json"
+              req = urllib.request.Request(url, data=data, headers=req_headers, method=method)
+              with urllib.request.urlopen(req) as r:
+                  return json.loads(r.read().decode())
+
+          def find_preview_url():
+              # Render preview deployments are surfaced as GitHub deployments/statuses.
+              # Poll to allow Render time to create and publish the deployment status.
+              for _ in range(60):
+                  q = urllib.parse.urlencode({"sha": head_sha, "per_page": 100})
+                  deployments = gh_json("GET", f"{api_base}/deployments?{q}")
+
+                  for dep in deployments:
+                      dep_id = dep.get("id")
+                      if not dep_id:
+                          continue
+                      statuses = gh_json("GET", f"{api_base}/deployments/{dep_id}/statuses?per_page=100")
+                      for status in statuses:
+                          env_url = status.get("environment_url")
+                          if env_url and "onrender.com" in env_url:
+                              return env_url
+                  time.sleep(10)
+              return None
+
+          def upsert_preview_section(body, section_text):
+              block = f"{start_marker}\n{section_text}\n{end_marker}"
+              pattern = re.compile(re.escape(start_marker) + r".*?" + re.escape(end_marker), re.DOTALL)
+
+              if pattern.search(body or ""):
+                  return pattern.sub(block, body)
+
+              body = body or ""
+              if body and not body.endswith("\n"):
+                  body += "\n"
+              return body + "\n" + block + "\n"
+
+          pr = gh_json("GET", f"{api_base}/pulls/{pr_number}")
+          current_body = pr.get("body") or ""
+
+          preview_url = find_preview_url()
+          if preview_url:
+              section = f"Render preview: {preview_url}"
+          else:
+              section = "Preview not available yet. Check Render deploy status in GitHub checks."
+
+          new_body = upsert_preview_section(current_body, section)
+          if new_body != current_body:
+              gh_json("PATCH", f"{api_base}/pulls/{pr_number}", {"body": new_body})
+          PY

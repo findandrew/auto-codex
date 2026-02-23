@@ -46,6 +46,7 @@ Repository-wide operating rules for autonomous coding agents.
 - Open PRs for all non-emergency changes.
 - In solo-maintainer mode, self-review in the PR is acceptable when required checks pass.
 - In multi-maintainer mode, require at least one external approving review.
+- For feature PRs, ensure PR description contains a Render preview link section (automated via workflow markers).
 
 ## Required Checks Before Completion
 - `bin/brakeman --no-pager`
