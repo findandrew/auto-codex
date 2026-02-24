@@ -58,6 +58,7 @@ Blueprint file: `render.yaml`
   - Repository variable: `RENDER_SERVICE_ID`
 - Render PR previews:
   - Service setting: `previews.generation=automatic`
+  - GitHub requirement: Render GitHub App must be installed and granted access to this repository
   - PR descriptions include preview URL via automation markers in PR template (or an explicit unavailable status if Render has not emitted a preview URL yet)
 
 ## Governance

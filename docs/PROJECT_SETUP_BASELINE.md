@@ -78,6 +78,8 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Default branch used in this bootstrap: `main`
 - CI workflow in use: `/Users/andrew/Git/auto-codex/.github/workflows/ci.yml`
 - Render deploy from CI is configured in `deploy-render` job.
+- Render preview integration requirement:
+  - Install Render GitHub App and grant repository access to `findandrew/auto-codex`.
 - Required GitHub Actions configuration:
   - Secret: `RENDER_API_KEY`
   - Variable: `RENDER_SERVICE_ID` = `srv-d6dmaa14tr6s73culd80`
@@ -115,6 +117,7 @@ Canonical setup record for this repository. This is the source of truth for futu
 - PR preview URL may take a few minutes after PR open/sync; preview-link workflow polls GitHub deployments for Render environment URL.
 - If no Render preview URL is emitted for a PR, the PR description is updated with an explicit unavailable message instead of a broken link.
 - If preview URL is unavailable, PR description includes Render Previews dashboard link for the service.
+- If previews are still not generated, re-check Render GitHub App installation/repo access first.
 
 ## New-project reuse checklist
 - Copy `AGENTS.md`, `docs/PROJECT_SETUP_BASELINE.md`, and `.github` governance files first.
