@@ -34,6 +34,7 @@ Canonical setup record for this repository. This is the source of truth for futu
    - `lint`: RuboCop
    - `test`: PostgreSQL-backed RSpec
    - `deploy-render`: on `push` to `main`, trigger Render deploy after checks pass
+   - `pr-render-preview-link`: on PR updates, inject Render preview URL into PR description
 7. Add Render deployment blueprint:
    - `render.yaml` with web service + managed PostgreSQL
    - pre-deploy migrations and `/up` health check
@@ -98,6 +99,7 @@ Canonical setup record for this repository. This is the source of truth for futu
 ## Render integration state
 - Web service: `auto-codex-web`
 - Public URL: `https://auto-codex-web.onrender.com`
+- PR previews: enabled (`previews.generation=automatic`)
 - Database: `auto-codex-db` (Postgres 16, free plan for initial bootstrap)
 - Required env vars on Render service:
   - `RAILS_ENV=production`
@@ -110,6 +112,9 @@ Canonical setup record for this repository. This is the source of truth for futu
 - If Render build fails with missing `secret_key_base`, add `SECRET_KEY_BASE` env var and redeploy.
 - Patch-level Ruby pins can fail on hosted builders; prefer a supported `3.4.x` strategy and keep Gemfile Ruby range compatible (`>= 3.4.4`, `< 3.5`).
 - If Render auto-deploy webhooks are inconsistent, CI-triggered deploy via `deploy-render` is the canonical release path.
+- PR preview URL may take a few minutes after PR open/sync; preview-link workflow polls GitHub deployments for Render environment URL.
+- If no Render preview URL is emitted for a PR, the PR description is updated with an explicit unavailable message instead of a broken link.
+- If preview URL is unavailable, PR description includes Render Previews dashboard link for the service.
 
 ## New-project reuse checklist
 - Copy `AGENTS.md`, `docs/PROJECT_SETUP_BASELINE.md`, and `.github` governance files first.
@@ -125,3 +130,4 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Policy for collaboration: agents should work on `codex/*` branches and open PRs to `main`; direct pushes to `main` are reserved for explicit emergency/admin instruction.
 - Policy for baseline docs: whenever infra/scaffolding/governance/CI/CD setup changes, update this file in the same PR.
 - Solo repository policy: keep PR-required + required checks, but use `0` required approvals so a single maintainer can merge after self-review.
+- Review policy: preview links in PR description are the default reviewer entrypoint for branch validation.

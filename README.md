@@ -37,6 +37,7 @@ GitHub Actions workflow: `.github/workflows/ci.yml`
 - `lint` job: RuboCop
 - `test` job: PostgreSQL-backed RSpec
 - `deploy-render` job: triggers Render deploy on `push` to `main` after checks pass
+- PR preview workflow: `.github/workflows/pr-render-preview-link.yml` updates PR descriptions with Render preview links
 
 ## Release Gate
 - `main` must pass all required checks before deployment:
@@ -55,6 +56,9 @@ Blueprint file: `render.yaml`
 - GitHub Actions deploy inputs:
   - Repository secret: `RENDER_API_KEY`
   - Repository variable: `RENDER_SERVICE_ID`
+- Render PR previews:
+  - Service setting: `previews.generation=automatic`
+  - PR descriptions include preview URL via automation markers in PR template (or an explicit unavailable status if Render has not emitted a preview URL yet)
 
 ## Governance
 - Agent operating rules: `AGENTS.md`
