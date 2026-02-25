@@ -23,13 +23,19 @@ Opinionated baseline for highly autonomous development with:
 5. Open:
    - [http://localhost:3000](http://localhost:3000)
 
-The root route `/` and `/hello` return a simple hello world page.
+The root route `/` and `/hello` return a simple hello page.
+Create an account at `/registration`, sign in at `/session/new`, then use `/projects` for CRUD.
 
 ## Quality checks
 - Security scan: `bin/brakeman --no-pager`
 - Gem vulnerability scan: `bin/bundler-audit --update`
 - Lint: `bin/rubocop`
 - Tests: `bundle exec rspec`
+
+## App baseline
+- Auth: Rails built-in authentication generator (session-based, no Devise dependency)
+- Resource: `Project` scaffold (`name`, `summary`, `status`)
+- CRUD: full HTML + JSON scaffold routes/controllers/views with request + model specs
 
 ## CI
 GitHub Actions workflow: `.github/workflows/ci.yml`
