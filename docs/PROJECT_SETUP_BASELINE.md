@@ -29,10 +29,11 @@ Canonical setup record for this repository. This is the source of truth for futu
    - Root and `/hello` route to `PagesController#hello`
    - View renders `Hello, world!`
    - Request spec asserts 200 and response text
-6. Configure CI pipeline with three required jobs:
+6. Configure CI pipeline with required quality/security gates:
    - `security`: Brakeman + Bundler Audit
    - `lint`: RuboCop
    - `test`: PostgreSQL-backed RSpec
+   - `dependency-review`: GitHub dependency diff policy check on PRs
    - `deploy-render`: on `push` to `main`, trigger Render deploy after checks pass
    - `pr-render-preview-link`: on PR updates, inject Render preview URL into PR description
 7. Add Render deployment blueprint:
@@ -47,6 +48,7 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Agent policy: `/Users/andrew/Git/auto-codex/AGENTS.md`
 - Workflow guidance: `/Users/andrew/Git/auto-codex/docs/AGENT_WORKFLOW.md`
 - CI workflow: `/Users/andrew/Git/auto-codex/.github/workflows/ci.yml`
+- Dependency review workflow: `/Users/andrew/Git/auto-codex/.github/workflows/dependency-review.yml`
 - Deploy blueprint: `/Users/andrew/Git/auto-codex/render.yaml`
 - Ownership policy: `/Users/andrew/Git/auto-codex/.github/CODEOWNERS`
 - Branch protection checklist: `/Users/andrew/Git/auto-codex/docs/BRANCH_PROTECTION.md`
@@ -69,6 +71,7 @@ Canonical setup record for this repository. This is the source of truth for futu
 
 ## CI/CD gate requirements
 - CI jobs `security`, `lint`, and `test` are required branch-protection checks for `main`.
+- PR job `dependency-review` is required for merge to protect against risky dependency changes.
 - Production deploy must happen through CI `deploy-render` job after those checks succeed.
 - Direct manual production deploys should be treated as emergency fallback only.
 - Behavior changes must ship with automated tests so release gating remains meaningful.
@@ -88,6 +91,7 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Branch protection state on `main`:
   - PR required for merge
   - required checks: `security`, `lint`, `test`
+  - required checks also include `dependency-review`
   - branch up-to-date required (`strict` checks)
   - required approvals set to `0` for solo-maintainer mode
   - code owner review required
@@ -134,3 +138,4 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Policy for baseline docs: whenever infra/scaffolding/governance/CI/CD setup changes, update this file in the same PR.
 - Solo repository policy: keep PR-required + required checks, but use `0` required approvals so a single maintainer can merge after self-review.
 - Review policy: preview links in PR description are the default reviewer entrypoint for branch validation.
+- GitHub Actions policy: workflows should use least-privilege `permissions` and `concurrency` cancellation to reduce token blast radius and stale-run noise.

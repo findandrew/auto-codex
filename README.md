@@ -37,6 +37,8 @@ GitHub Actions workflow: `.github/workflows/ci.yml`
 - `lint` job: RuboCop
 - `test` job: PostgreSQL-backed RSpec
 - `deploy-render` job: triggers Render deploy on `push` to `main` after checks pass
+- Workflow permissions are explicitly least-privilege (`contents: read`) and stale runs are auto-cancelled via `concurrency`
+- Dependency policy gate: `.github/workflows/dependency-review.yml` runs on each PR
 - PR preview workflow: `.github/workflows/pr-render-preview-link.yml` updates PR descriptions with Render preview links
 
 ## Release Gate
@@ -44,6 +46,7 @@ GitHub Actions workflow: `.github/workflows/ci.yml`
   - `security`
   - `lint`
   - `test`
+  - `dependency-review`
 - `deploy-render` is CI-gated behind those checks and is the canonical production deployment path.
 - Any change that modifies behavior should include or update automated tests so CI can validate it.
 
