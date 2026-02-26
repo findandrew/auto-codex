@@ -12,7 +12,7 @@ permissions:
   issues: write
 
 concurrency:
-  group: agent-pr-feedback-${{ github.event_name }}-${{ github.event.issue.number || github.event.pull_request.number || github.run_id }}
+  group: agent-pr-feedback-${{ github.event_name }}-${{ github.event.comment.id || github.run_id }}
   cancel-in-progress: true
 
 jobs:
@@ -107,6 +107,13 @@ jobs:
             echo "committed=true" >> "${GITHUB_OUTPUT}"
             echo "commit_sha=$(git rev-parse HEAD)" >> "${GITHUB_OUTPUT}"
           fi
+
+      - name: Trigger CI for agent commit
+        if: steps.pr.outputs.head_repo == github.repository && steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh workflow run ci.yml --ref "${{ steps.pr.outputs.head_ref }}"
 
       - name: Comment on PR
         env:

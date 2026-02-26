@@ -6,6 +6,7 @@ Rules:
 - Keep each feedback signal as a bullet `- <feedback>`.
 - Keep entries concrete and user-observable.
 - Include direct phrasing when possible.
+- Only items under `## Signals` are parsed by automation.
 
 ## Signals
 - Users want faster project filtering by status.

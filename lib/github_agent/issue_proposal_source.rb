@@ -33,7 +33,7 @@ module GithubAgent
       path = File.join(repo_root, ROADMAP_PATH)
       return [] unless File.exist?(path)
 
-      File.readlines(path, chomp: true).filter_map do |line|
+      section_lines(path, "## Candidate Items").filter_map do |line|
         next unless (match = line.match(/^\s*- \[ \] (.+)$/))
 
         summary = match[1].strip
@@ -49,7 +49,7 @@ module GithubAgent
       path = File.join(repo_root, CUSTOMER_FEEDBACK_PATH)
       return [] unless File.exist?(path)
 
-      File.readlines(path, chomp: true).filter_map do |line|
+      section_lines(path, "## Signals").filter_map do |line|
         next unless (match = line.match(/^\s*- (.+)$/))
 
         summary = match[1].strip
@@ -71,6 +71,14 @@ module GithubAgent
 
     def normalize_title(title)
       title.downcase.gsub(/\s+/, " ").strip
+    end
+
+    def section_lines(path, heading)
+      lines = File.readlines(path, chomp: true)
+      start_idx = lines.index(heading)
+      return [] unless start_idx
+
+      lines[(start_idx + 1)..].take_while { |line| !line.start_with?("## ") }
     end
   end
 end

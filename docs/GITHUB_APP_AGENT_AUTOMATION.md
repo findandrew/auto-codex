@@ -35,6 +35,7 @@ This document defines the GitHub-first agent workflow for this repository.
   - Parses request.
   - Writes execution log to `docs/agent_runs/pr-<number>.md`.
   - Commits log to PR branch (same-repo PRs only).
+  - Dispatches `ci.yml` on the updated branch so required checks are regenerated for the new commit.
   - Posts app-authored status comment back to PR.
 
 ### 2) Issue proposal drafting (`agent-issue-proposals`)

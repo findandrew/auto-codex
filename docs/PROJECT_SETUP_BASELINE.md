@@ -179,6 +179,7 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Solo repository policy: keep PR-required + required checks, but use `0` required approvals so a single maintainer can merge after self-review.
 - Review policy: preview links in PR description are the default reviewer entrypoint for branch validation.
 - Agent policy: PR feedback loop is triggered by wake words in PR comments (`@auto-codex`, `/auto-codex`, `@findandrew-bot`) from trusted collaborator associations.
+- CI policy: `ci.yml` supports `workflow_dispatch` so app-authored PR commits can re-trigger required checks programmatically.
 - QA policy: use Playwright browser smoke checks for UI/auth/preview-sensitive work in addition to RSpec and curl-based checks.
 - Handoff policy: when docs change, final handoff must include a concise docs update summary.
 - GitHub Actions policy: workflows should use least-privilege `permissions` and `concurrency` cancellation to reduce token blast radius and stale-run noise.

@@ -6,6 +6,7 @@ Rules:
 - Keep each candidate as an unchecked task: `- [ ] <proposal>`
 - Keep one idea per line.
 - Move completed items to checked state.
+- Only items under `## Candidate Items` are parsed by automation.
 
 ## Candidate Items
 - [ ] Add multi-project dashboard summaries
