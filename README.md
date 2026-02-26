@@ -44,6 +44,7 @@ GitHub Actions workflow: `.github/workflows/ci.yml`
 - `test` job: PostgreSQL-backed RSpec
 - `deploy-render` job: triggers Render deploy on `push` to `main` after checks pass
 - PR preview workflow: `.github/workflows/pr-render-preview-link.yml` updates PR descriptions with Render preview links
+- Preview smoke workflow: `.github/workflows/pr-preview-smoke.yml` verifies key preview routes and fails on unexpected 5xx responses
 
 ## Release Gate
 - `main` must pass all required checks before deployment:
@@ -57,6 +58,7 @@ GitHub Actions workflow: `.github/workflows/ci.yml`
 Blueprint file: `render.yaml`
 - Web service build: `bundle install && bundle exec rails assets:precompile`
 - Start: `bundle exec puma -C config/puma.rb`
+- Start: `bundle exec rails db:prepare && bundle exec puma -C config/puma.rb`
 - Pre-deploy migration: `bundle exec rails db:migrate`
 - Health check: `/up`
 - GitHub Actions deploy inputs:

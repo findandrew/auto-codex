@@ -36,12 +36,13 @@ Canonical setup record for this repository. This is the source of truth for futu
    - Add registration flow (`RegistrationsController`, `/registration`)
    - `bin/rails generate scaffold Project name:string summary:text status:string`
    - Add model validations and request/model specs for auth + CRUD behaviors
-7. Configure CI pipeline with three required jobs:
+7. Configure CI pipeline with required quality gates:
    - `security`: Brakeman + Bundler Audit
    - `lint`: RuboCop
    - `test`: PostgreSQL-backed RSpec
    - `deploy-render`: on `push` to `main`, trigger Render deploy after checks pass
    - `pr-render-preview-link`: on PR updates, inject Render preview URL into PR description
+   - `pr-preview-smoke`: on PR updates, validate key Render preview routes return non-5xx responses
 8. Add Render deployment blueprint:
    - `render.yaml` with web service + managed PostgreSQL
    - pre-deploy migrations and `/up` health check
@@ -54,6 +55,7 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Agent policy: `/Users/andrew/Git/auto-codex/AGENTS.md`
 - Workflow guidance: `/Users/andrew/Git/auto-codex/docs/AGENT_WORKFLOW.md`
 - CI workflow: `/Users/andrew/Git/auto-codex/.github/workflows/ci.yml`
+- Preview smoke workflow: `/Users/andrew/Git/auto-codex/.github/workflows/pr-preview-smoke.yml`
 - Deploy blueprint: `/Users/andrew/Git/auto-codex/render.yaml`
 - Ownership policy: `/Users/andrew/Git/auto-codex/.github/CODEOWNERS`
 - Branch protection checklist: `/Users/andrew/Git/auto-codex/docs/BRANCH_PROTECTION.md`
@@ -80,7 +82,7 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Verify GitHub Actions run for `.github/workflows/ci.yml` is green.
 - Verify hosted Render URLs:
   - `/` returns `Hello, world!`
-  - `/registration` renders account creation form
+  - `/registration/new` renders account creation form
   - `/projects` redirects to sign-in when unauthenticated
   - `/up` returns healthy status page
 
@@ -119,6 +121,7 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Web service: `auto-codex-web`
 - Public URL: `https://auto-codex-web.onrender.com`
 - PR previews: enabled (`previews.generation=automatic`)
+- Start command: `bundle exec rails db:prepare && bundle exec puma -C config/puma.rb`
 - Database: `auto-codex-db` (Postgres 16, free plan for initial bootstrap)
 - Required env vars on Render service:
   - `RAILS_ENV=production`
@@ -131,6 +134,7 @@ Canonical setup record for this repository. This is the source of truth for futu
 - If Render build fails with missing `secret_key_base`, add `SECRET_KEY_BASE` env var and redeploy.
 - Patch-level Ruby pins can fail on hosted builders; prefer a supported `3.4.x` strategy and keep Gemfile Ruby range compatible (`>= 3.4.4`, `< 3.5`).
 - If Render auto-deploy webhooks are inconsistent, CI-triggered deploy via `deploy-render` is the canonical release path.
+- PR previews may use databases without app migrations applied; keep `db:prepare` in start command to avoid runtime `UndefinedTable` errors on preview-only routes.
 - PR preview URL may take a few minutes after PR open/sync; preview-link workflow polls GitHub deployments for Render environment URL.
 - If no Render preview URL is emitted for a PR, the PR description is updated with an explicit unavailable message instead of a broken link.
 - If preview URL is unavailable, PR description includes Render Previews dashboard link for the service.

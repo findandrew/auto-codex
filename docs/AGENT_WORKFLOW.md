@@ -33,6 +33,7 @@
 - Merge only after required checks pass and required approvals are satisfied.
 - For solo-maintainer repositories, set required approvals to `0` while keeping PR-required and status checks enforced.
 - PR descriptions should include a Render preview link for reviewer validation (automated by workflow).
+- PRs should pass preview smoke checks (`pr-preview-smoke`) so reviewer-facing routes do not return 5xx on Render previews.
 
 ## Multi-agent operating model
 - Build agent: writes code and tests in a PR.
