@@ -73,3 +73,5 @@ This document defines the GitHub-first agent workflow for this repository.
 - Fork PRs are intentionally read-only for agent writes.
 - If no Render preview URL exists yet, Playwright workflow exits gracefully.
 - Keep backlog source files curated to avoid noisy issue creation.
+
+<!-- sync 2026-02-26T03:27:58Z -->
