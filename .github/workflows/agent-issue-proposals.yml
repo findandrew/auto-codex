@@ -1,0 +1,69 @@
+name: agent-issue-proposals
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 14 * * 1"
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: agent-issue-proposals-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Build proposal payloads
+        run: |
+          mkdir -p tmp
+          script/github_agent/build_issue_payloads.rb tmp/issue_proposals.json 20
+
+      - name: Ensure labels exist
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh label create proposal --color 0e8a16 --description "Agent-generated proposal" --force || true
+          gh label create roadmap --color 5319e7 --description "Roadmap-sourced proposal" --force || true
+          gh label create customer-feedback --color 1d76db --description "Customer-feedback-sourced proposal" --force || true
+
+      - name: Publish non-duplicate issues
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          count="$(jq 'length' tmp/issue_proposals.json)"
+          if [ "${count}" = "0" ]; then
+            echo "No proposals found."
+            exit 0
+          fi
+
+          for i in $(seq 0 $((count - 1))); do
+            title="$(jq -r ".[$i].title" tmp/issue_proposals.json)"
+            body="$(jq -r ".[$i].body" tmp/issue_proposals.json)"
+            labels="$(jq -r ".[$i].labels | join(\",\")" tmp/issue_proposals.json)"
+
+            existing="$(gh issue list --repo "${REPOSITORY}" --state open --search "in:title \"${title}\"" --json title -q '.[].title' | rg -x "${title}" || true)"
+            if [ -n "${existing}" ]; then
+              echo "Skipping duplicate: ${title}"
+              continue
+            fi
+
+            tmp_body="$(mktemp)"
+            printf '%s\n\n_Opened automatically by agent-issue-proposals workflow._\n' "${body}" > "${tmp_body}"
+            gh issue create --repo "${REPOSITORY}" --title "${title}" --body-file "${tmp_body}" --label "${labels}"
+          done

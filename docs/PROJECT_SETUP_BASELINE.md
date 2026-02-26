@@ -14,6 +14,7 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Test framework: RSpec
 - Security/lint tooling: Brakeman, Bundler Audit, RuboCop, pre-commit
 - Browser QA tooling: Playwright CLI via Codex skill + repo smoke script
+- GitHub App automation: app-authenticated PR feedback loop, proposal issue drafting, and PR preview screenshot artifacts
 - CI: GitHub Actions
 - Deployment target: Render (Blueprint + PostgreSQL)
 - Governance: CODEOWNERS + strict branch protection + PR template + security policy + agent rules
@@ -45,6 +46,9 @@ Canonical setup record for this repository. This is the source of truth for futu
    - `deploy-render`: on `push` to `main`, trigger Render deploy after checks pass
    - `pr-render-preview-link`: on PR updates, inject Render preview URL into PR description
    - `pr-preview-smoke`: on PR updates, validate key Render preview routes return non-5xx responses
+   - `pr-playwright-preview-artifacts`: on PR updates, upload screenshot artifacts from Render previews
+   - `agent-pr-feedback`: wake-word PR comment loop that records agent execution and responds as GitHub App
+   - `agent-issue-proposals`: weekly/manual proposal issue drafting from roadmap + customer feedback docs
 8. Add Render deployment blueprint:
    - `render.yaml` with web service + managed PostgreSQL
    - pre-deploy migrations and `/up` health check
@@ -58,9 +62,14 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Workflow guidance: `/Users/andrew/Git/auto-codex/docs/AGENT_WORKFLOW.md`
 - CI workflow: `/Users/andrew/Git/auto-codex/.github/workflows/ci.yml`
 - Preview smoke workflow: `/Users/andrew/Git/auto-codex/.github/workflows/pr-preview-smoke.yml`
+- Playwright preview artifact workflow: `/Users/andrew/Git/auto-codex/.github/workflows/pr-playwright-preview-artifacts.yml`
 - Dependency review workflow: `/Users/andrew/Git/auto-codex/.github/workflows/dependency-review.yml`
+- Agent feedback workflow: `/Users/andrew/Git/auto-codex/.github/workflows/agent-pr-feedback.yml`
+- Agent issue proposal workflow: `/Users/andrew/Git/auto-codex/.github/workflows/agent-issue-proposals.yml`
 - Playwright QA runbook: `/Users/andrew/Git/auto-codex/docs/PLAYWRIGHT_QA.md`
+- GitHub App automation runbook: `/Users/andrew/Git/auto-codex/docs/GITHUB_APP_AGENT_AUTOMATION.md`
 - Playwright smoke script: `/Users/andrew/Git/auto-codex/scripts/qa_preview_playwright.sh`
+- GitHub agent scripts: `/Users/andrew/Git/auto-codex/script/github_agent/*`
 - Playwright CLI config: `/Users/andrew/Git/auto-codex/playwright-cli.json`
 - Deploy blueprint: `/Users/andrew/Git/auto-codex/render.yaml`
 - Ownership policy: `/Users/andrew/Git/auto-codex/.github/CODEOWNERS`
@@ -86,6 +95,7 @@ Canonical setup record for this repository. This is the source of truth for futu
 - `bundle exec rspec`
 - `python3 -m pre_commit run --files $(rg --files)`
 - For UI/auth/preview changes: `scripts/qa_preview_playwright.sh <preview-url>`
+- Validate GitHub App loop by posting `@auto-codex status` in a PR comment and confirming commit + bot response.
 - Verify GitHub Actions run for `.github/workflows/ci.yml` is green.
 - Verify hosted Render URLs:
   - `/` returns `Hello, world!`
@@ -109,6 +119,9 @@ Canonical setup record for this repository. This is the source of truth for futu
   - Install Render GitHub App and grant repository access to `findandrew/auto-codex`.
 - Required GitHub Actions configuration:
   - Secret: `RENDER_API_KEY`
+  - Secret: `APP_ID`
+  - Secret: `APP_PRIVATE_KEY`
+  - Optional secret: `APP_WEBHOOK_SECRET`
   - Variable: `RENDER_SERVICE_ID` = `srv-d6dmaa14tr6s73culd80`
 - Example successful run URL:
   - `https://github.com/findandrew/auto-codex/actions/runs/22284656064`
@@ -165,6 +178,7 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Policy for baseline docs: whenever infra/scaffolding/governance/CI/CD setup changes, update this file in the same PR.
 - Solo repository policy: keep PR-required + required checks, but use `0` required approvals so a single maintainer can merge after self-review.
 - Review policy: preview links in PR description are the default reviewer entrypoint for branch validation.
+- Agent policy: PR feedback loop is triggered by wake words in PR comments (`@auto-codex`, `/auto-codex`, `@findandrew-bot`) from trusted collaborator associations.
 - QA policy: use Playwright browser smoke checks for UI/auth/preview-sensitive work in addition to RSpec and curl-based checks.
 - Handoff policy: when docs change, final handoff must include a concise docs update summary.
 - GitHub Actions policy: workflows should use least-privilege `permissions` and `concurrency` cancellation to reduce token blast radius and stale-run noise.

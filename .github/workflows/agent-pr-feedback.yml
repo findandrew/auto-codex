@@ -1,0 +1,126 @@
+name: agent-pr-feedback
+
+on:
+  issue_comment:
+    types: [created, edited]
+  pull_request_review_comment:
+    types: [created, edited]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: agent-pr-feedback-${{ github.event_name }}-${{ github.event.issue.number || github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.parse.outputs.should_run }}
+      reason: ${{ steps.parse.outputs.reason }}
+      pr_number: ${{ steps.parse.outputs.pr_number }}
+      commenter: ${{ steps.parse.outputs.commenter }}
+      command: ${{ steps.parse.outputs.command }}
+      wake_word: ${{ steps.parse.outputs.wake_word }}
+      comment_id: ${{ steps.parse.outputs.comment_id }}
+      association: ${{ steps.parse.outputs.association }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Parse comment event
+        id: parse
+        run: script/github_agent/parse_comment_event.rb
+
+      - name: Stop early details
+        if: steps.parse.outputs.should_run != 'true'
+        run: |
+          echo "Skipping agent run: ${{ steps.parse.outputs.reason }}"
+
+  execute:
+    runs-on: ubuntu-latest
+    needs: evaluate
+    if: needs.evaluate.outputs.should_run == 'true'
+    steps:
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Resolve PR head ref
+        id: pr
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PR_NUMBER: ${{ needs.evaluate.outputs.pr_number }}
+        run: |
+          set -euo pipefail
+          pr_json="$(gh api repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER})"
+          echo "head_ref=$(printf '%s' "${pr_json}" | jq -r '.head.ref')" >> "${GITHUB_OUTPUT}"
+          echo "head_repo=$(printf '%s' "${pr_json}" | jq -r '.head.repo.full_name')" >> "${GITHUB_OUTPUT}"
+
+      - name: Restrict to same-repo branches
+        if: steps.pr.outputs.head_repo != github.repository
+        run: |
+          echo "Skipping write run for fork PR: ${{ steps.pr.outputs.head_repo }}"
+          exit 0
+
+      - name: Checkout PR branch
+        if: steps.pr.outputs.head_repo == github.repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.pr.outputs.head_ref }}
+
+      - name: Configure Git identity
+        if: steps.pr.outputs.head_repo == github.repository
+        run: |
+          git config user.name "auto-codex-bot[app]"
+          git config user.email "auto-codex-bot[app]@users.noreply.github.com"
+
+      - name: Record agent feedback log
+        if: steps.pr.outputs.head_repo == github.repository
+        id: log
+        env:
+          PR_NUMBER: ${{ needs.evaluate.outputs.pr_number }}
+          COMMENT_ID: ${{ needs.evaluate.outputs.comment_id }}
+          COMMENTER: ${{ needs.evaluate.outputs.commenter }}
+          WAKE_WORD: ${{ needs.evaluate.outputs.wake_word }}
+          COMMAND: ${{ needs.evaluate.outputs.command }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: script/github_agent/log_feedback.rb
+
+      - name: Commit and push
+        if: steps.pr.outputs.head_repo == github.repository
+        id: commit
+        run: |
+          set -euo pipefail
+          git add docs/agent_runs
+          if git diff --cached --quiet; then
+            echo "committed=false" >> "${GITHUB_OUTPUT}"
+          else
+            git commit -m "chore(agent): record PR feedback command"
+            git push origin "${{ steps.pr.outputs.head_ref }}"
+            echo "committed=true" >> "${GITHUB_OUTPUT}"
+            echo "commit_sha=$(git rev-parse HEAD)" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Comment on PR
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          PR_NUMBER: ${{ needs.evaluate.outputs.pr_number }}
+          COMMENTER: ${{ needs.evaluate.outputs.commenter }}
+          COMMAND: ${{ needs.evaluate.outputs.command }}
+          COMMITTED: ${{ steps.commit.outputs.committed }}
+          COMMIT_SHA: ${{ steps.commit.outputs.commit_sha }}
+        run: |
+          set -euo pipefail
+          if [ "${COMMITTED}" = "true" ]; then
+            body="@${COMMENTER} processed your agent request: \`${COMMAND}\`.\n\nCommitted feedback log in \`docs/agent_runs\` at ${COMMIT_SHA}."
+          else
+            body="@${COMMENTER} processed your agent request: \`${COMMAND}\`.\n\nNo code changes were required."
+          fi
+          gh api repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments -f body="${body}" >/dev/null
