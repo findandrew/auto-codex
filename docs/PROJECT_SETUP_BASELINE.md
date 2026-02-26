@@ -135,6 +135,7 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Patch-level Ruby pins can fail on hosted builders; prefer a supported `3.4.x` strategy and keep Gemfile Ruby range compatible (`>= 3.4.4`, `< 3.5`).
 - If Render auto-deploy webhooks are inconsistent, CI-triggered deploy via `deploy-render` is the canonical release path.
 - PR previews may use databases without app migrations applied; keep `db:prepare` in start command to avoid runtime `UndefinedTable` errors on preview-only routes.
+- Existing PR preview instances created before service command changes may retain old startup commands; patch/redeploy the preview instance or close/reopen PR to recreate it with updated settings.
 - PR preview URL may take a few minutes after PR open/sync; preview-link workflow polls GitHub deployments for Render environment URL.
 - If no Render preview URL is emitted for a PR, the PR description is updated with an explicit unavailable message instead of a broken link.
 - If preview URL is unavailable, PR description includes Render Previews dashboard link for the service.
