@@ -78,3 +78,5 @@ This document defines the GitHub-first agent workflow for this repository.
 <!-- sync 2026-02-26T03:27:58Z -->
 
 Validation marker: 2026-02-26T03:44:15Z
+
+Validation sync: 2026-02-26T03:45:56Z
