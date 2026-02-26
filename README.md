@@ -23,13 +23,20 @@ Opinionated baseline for highly autonomous development with:
 5. Open:
    - [http://localhost:3000](http://localhost:3000)
 
-The root route `/` and `/hello` return a simple hello world page.
+The root route `/` and `/hello` return a simple hello page.
+Create an account at `/registration`, sign in at `/session/new`, then use `/projects` for CRUD.
 
 ## Quality checks
 - Security scan: `bin/brakeman --no-pager`
 - Gem vulnerability scan: `bin/bundler-audit --update`
 - Lint: `bin/rubocop`
 - Tests: `bundle exec rspec`
+- Browser smoke (Render preview): `scripts/qa_preview_playwright.sh <preview-url>`
+
+## App baseline
+- Auth: Rails built-in authentication generator (session-based, no Devise dependency)
+- Resource: `Project` scaffold (`name`, `summary`, `status`)
+- CRUD: full HTML + JSON scaffold routes/controllers/views with request + model specs
 
 ## CI
 GitHub Actions workflow: `.github/workflows/ci.yml`
@@ -40,6 +47,7 @@ GitHub Actions workflow: `.github/workflows/ci.yml`
 - Workflow permissions are explicitly least-privilege (`contents: read`) and stale runs are auto-cancelled via `concurrency`
 - Dependency policy gate: `.github/workflows/dependency-review.yml` runs on each PR
 - PR preview workflow: `.github/workflows/pr-render-preview-link.yml` updates PR descriptions with Render preview links
+- Preview smoke workflow: `.github/workflows/pr-preview-smoke.yml` verifies key preview routes and fails on unexpected 5xx responses
 
 ## Release Gate
 - `main` must pass all required checks before deployment:
@@ -54,6 +62,7 @@ GitHub Actions workflow: `.github/workflows/ci.yml`
 Blueprint file: `render.yaml`
 - Web service build: `bundle install && bundle exec rails assets:precompile`
 - Start: `bundle exec puma -C config/puma.rb`
+- Start: `bundle exec rails db:prepare && bundle exec puma -C config/puma.rb`
 - Pre-deploy migration: `bundle exec rails db:migrate`
 - Health check: `/up`
 - GitHub Actions deploy inputs:
@@ -67,6 +76,7 @@ Blueprint file: `render.yaml`
 ## Governance
 - Agent operating rules: `AGENTS.md`
 - Setup baseline record: `docs/PROJECT_SETUP_BASELINE.md`
+- Playwright QA runbook: `docs/PLAYWRIGHT_QA.md`
 - PR template: `.github/pull_request_template.md`
 - Code ownership: `.github/CODEOWNERS` (replace placeholder)
 - Branch protection checklist: `docs/BRANCH_PROTECTION.md`

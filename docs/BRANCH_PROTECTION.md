@@ -20,6 +20,7 @@ Configure these settings on your default branch (`main`) in GitHub.
 - `lint`
 - `test`
 - `dependency-review`
+- `smoke` (from `pr-preview-smoke` workflow)
 
 ## Fast apply (API)
 If you have a GitHub token with repo admin scope:

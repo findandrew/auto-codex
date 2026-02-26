@@ -24,6 +24,25 @@
   </head>
 
   <body>
+    <% if notice %>
+      <p style="color: green"><%= notice %></p>
+    <% end %>
+    <% if alert %>
+      <p style="color: red"><%= alert %></p>
+    <% end %>
+
+    <nav>
+      <%= link_to "Home", root_path %> |
+      <%= link_to "Projects", projects_path %>
+      <% if authenticated? %>
+        | Signed in as <%= Current.session.user.email_address %>
+        | <%= button_to "Sign out", session_path, method: :delete %>
+      <% else %>
+        | <%= link_to "Sign in", new_session_path %>
+        | <%= link_to "Create account", new_registration_path %>
+      <% end %>
+    </nav>
+
     <%= yield %>
   </body>
 </html>
