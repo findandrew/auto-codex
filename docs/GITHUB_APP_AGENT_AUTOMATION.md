@@ -76,3 +76,5 @@ This document defines the GitHub-first agent workflow for this repository.
 - Keep backlog source files curated to avoid noisy issue creation.
 
 <!-- sync 2026-02-26T03:27:58Z -->
+
+Validation marker: 2026-02-26T03:44:15Z
