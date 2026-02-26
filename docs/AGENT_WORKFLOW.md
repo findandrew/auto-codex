@@ -17,6 +17,7 @@
 3. Execute
 - Agent edits only required files.
 - Agent runs checks and reports results.
+- For UI/auth/preview-sensitive changes, agent runs Playwright smoke validation and shares artifact(s).
 
 4. Review
 - Use PR template checklist.
@@ -56,3 +57,4 @@
 ## Baseline maintenance rule
 - For infrastructure/scaffolding/governance/CI/CD/security-process changes, update `docs/PROJECT_SETUP_BASELINE.md` in the same PR.
 - Keep that file final-state oriented: include decisions and resulting configuration, not trial-and-error history.
+- Always include a concise \"Docs Update Summary\" section in handoff notes whenever documentation files change.

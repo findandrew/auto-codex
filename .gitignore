@@ -39,3 +39,8 @@
 
 # Coverage
 /coverage
+
+# Playwright local artifacts
+/.playwright-cli
+/output/playwright/*
+!/output/playwright/.keep

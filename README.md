@@ -31,6 +31,7 @@ Create an account at `/registration`, sign in at `/session/new`, then use `/proj
 - Gem vulnerability scan: `bin/bundler-audit --update`
 - Lint: `bin/rubocop`
 - Tests: `bundle exec rspec`
+- Browser smoke (Render preview): `scripts/qa_preview_playwright.sh <preview-url>`
 
 ## App baseline
 - Auth: Rails built-in authentication generator (session-based, no Devise dependency)
@@ -72,6 +73,7 @@ Blueprint file: `render.yaml`
 ## Governance
 - Agent operating rules: `AGENTS.md`
 - Setup baseline record: `docs/PROJECT_SETUP_BASELINE.md`
+- Playwright QA runbook: `docs/PLAYWRIGHT_QA.md`
 - PR template: `.github/pull_request_template.md`
 - Code ownership: `.github/CODEOWNERS` (replace placeholder)
 - Branch protection checklist: `docs/BRANCH_PROTECTION.md`

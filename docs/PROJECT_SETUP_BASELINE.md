@@ -13,6 +13,7 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Database: PostgreSQL
 - Test framework: RSpec
 - Security/lint tooling: Brakeman, Bundler Audit, RuboCop, pre-commit
+- Browser QA tooling: Playwright CLI via Codex skill + repo smoke script
 - CI: GitHub Actions
 - Deployment target: Render (Blueprint + PostgreSQL)
 - Governance: CODEOWNERS + strict branch protection + PR template + security policy + agent rules
@@ -56,6 +57,9 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Workflow guidance: `/Users/andrew/Git/auto-codex/docs/AGENT_WORKFLOW.md`
 - CI workflow: `/Users/andrew/Git/auto-codex/.github/workflows/ci.yml`
 - Preview smoke workflow: `/Users/andrew/Git/auto-codex/.github/workflows/pr-preview-smoke.yml`
+- Playwright QA runbook: `/Users/andrew/Git/auto-codex/docs/PLAYWRIGHT_QA.md`
+- Playwright smoke script: `/Users/andrew/Git/auto-codex/scripts/qa_preview_playwright.sh`
+- Playwright CLI config: `/Users/andrew/Git/auto-codex/playwright-cli.json`
 - Deploy blueprint: `/Users/andrew/Git/auto-codex/render.yaml`
 - Ownership policy: `/Users/andrew/Git/auto-codex/.github/CODEOWNERS`
 - Branch protection checklist: `/Users/andrew/Git/auto-codex/docs/BRANCH_PROTECTION.md`
@@ -79,6 +83,7 @@ Canonical setup record for this repository. This is the source of truth for futu
 - `bin/rubocop`
 - `bundle exec rspec`
 - `python3 -m pre_commit run --files $(rg --files)`
+- For UI/auth/preview changes: `scripts/qa_preview_playwright.sh <preview-url>`
 - Verify GitHub Actions run for `.github/workflows/ci.yml` is green.
 - Verify hosted Render URLs:
   - `/` returns `Hello, world!`
@@ -156,3 +161,5 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Policy for baseline docs: whenever infra/scaffolding/governance/CI/CD setup changes, update this file in the same PR.
 - Solo repository policy: keep PR-required + required checks, but use `0` required approvals so a single maintainer can merge after self-review.
 - Review policy: preview links in PR description are the default reviewer entrypoint for branch validation.
+- QA policy: use Playwright browser smoke checks for UI/auth/preview-sensitive work in addition to RSpec and curl-based checks.
+- Handoff policy: when docs change, final handoff must include a concise docs update summary.
