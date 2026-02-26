@@ -1,0 +1,40 @@
+name: dependency-review
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: dependency-review-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check dependency graph availability
+        id: graph
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          api="https://api.github.com/repos/${GITHUB_REPOSITORY}"
+          status="$(curl -sS \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "${api}" | jq -r '.security_and_analysis.dependency_graph.status // "unknown"')"
+          echo "dependency_graph_status=${status}" >> "${GITHUB_OUTPUT}"
+
+      - name: Skip when dependency graph is disabled
+        if: steps.graph.outputs.dependency_graph_status != 'enabled'
+        run: |
+          echo "Dependency graph is not enabled for this repository."
+          echo "Enable it at: https://github.com/${GITHUB_REPOSITORY}/settings/security_analysis"
+          echo "Skipping dependency-review action."
+
+      - name: Dependency Review
+        if: steps.graph.outputs.dependency_graph_status == 'enabled'
+        uses: actions/dependency-review-action@v4

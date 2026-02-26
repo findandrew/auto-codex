@@ -41,6 +41,7 @@ Canonical setup record for this repository. This is the source of truth for futu
    - `security`: Brakeman + Bundler Audit
    - `lint`: RuboCop
    - `test`: PostgreSQL-backed RSpec
+   - `dependency-review`: GitHub dependency diff policy check on PRs
    - `deploy-render`: on `push` to `main`, trigger Render deploy after checks pass
    - `pr-render-preview-link`: on PR updates, inject Render preview URL into PR description
    - `pr-preview-smoke`: on PR updates, validate key Render preview routes return non-5xx responses
@@ -57,6 +58,7 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Workflow guidance: `/Users/andrew/Git/auto-codex/docs/AGENT_WORKFLOW.md`
 - CI workflow: `/Users/andrew/Git/auto-codex/.github/workflows/ci.yml`
 - Preview smoke workflow: `/Users/andrew/Git/auto-codex/.github/workflows/pr-preview-smoke.yml`
+- Dependency review workflow: `/Users/andrew/Git/auto-codex/.github/workflows/dependency-review.yml`
 - Playwright QA runbook: `/Users/andrew/Git/auto-codex/docs/PLAYWRIGHT_QA.md`
 - Playwright smoke script: `/Users/andrew/Git/auto-codex/scripts/qa_preview_playwright.sh`
 - Playwright CLI config: `/Users/andrew/Git/auto-codex/playwright-cli.json`
@@ -93,6 +95,7 @@ Canonical setup record for this repository. This is the source of truth for futu
 
 ## CI/CD gate requirements
 - CI jobs `security`, `lint`, and `test` are required branch-protection checks for `main`.
+- PR job `dependency-review` is required for merge to protect against risky dependency changes.
 - Production deploy must happen through CI `deploy-render` job after those checks succeed.
 - Direct manual production deploys should be treated as emergency fallback only.
 - Behavior changes must ship with automated tests so release gating remains meaningful.
@@ -112,6 +115,7 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Branch protection state on `main`:
   - PR required for merge
   - required checks: `security`, `lint`, `test`
+  - required checks also include `dependency-review`
   - branch up-to-date required (`strict` checks)
   - required approvals set to `0` for solo-maintainer mode
   - code owner review required
@@ -163,3 +167,4 @@ Canonical setup record for this repository. This is the source of truth for futu
 - Review policy: preview links in PR description are the default reviewer entrypoint for branch validation.
 - QA policy: use Playwright browser smoke checks for UI/auth/preview-sensitive work in addition to RSpec and curl-based checks.
 - Handoff policy: when docs change, final handoff must include a concise docs update summary.
+- GitHub Actions policy: workflows should use least-privilege `permissions` and `concurrency` cancellation to reduce token blast radius and stale-run noise.

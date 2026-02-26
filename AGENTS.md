@@ -56,6 +56,7 @@ Repository-wide operating rules for autonomous coding agents.
 - For deploy pipeline changes, confirm `.github/workflows/ci.yml` still gates `deploy-render` behind `security`, `lint`, and `test`.
 - For preview/deployment changes, confirm `.github/workflows/pr-preview-smoke.yml` validates preview endpoints and resolve any 5xx before requesting review.
 - For UI/auth/preview behavior changes, run `scripts/qa_preview_playwright.sh <render-preview-url>` and keep artifacts in `output/playwright/`.
+- For dependency or CI policy changes, confirm `.github/workflows/dependency-review.yml` remains active on PRs.
 
 If a check cannot run, explain exactly why and what remains unverified.
 
