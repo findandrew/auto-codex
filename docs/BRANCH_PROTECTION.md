@@ -19,6 +19,7 @@ Configure these settings on your default branch (`main`) in GitHub.
 - `security`
 - `lint`
 - `test`
+- `dependency-review`
 
 ## Fast apply (API)
 If you have a GitHub token with repo admin scope:

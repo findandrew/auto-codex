@@ -54,6 +54,7 @@ Repository-wide operating rules for autonomous coding agents.
 - `bin/rubocop`
 - `bundle exec rspec`
 - For deploy pipeline changes, confirm `.github/workflows/ci.yml` still gates `deploy-render` behind `security`, `lint`, and `test`.
+- For dependency or CI policy changes, confirm `.github/workflows/dependency-review.yml` remains active on PRs.
 
 If a check cannot run, explain exactly why and what remains unverified.
 

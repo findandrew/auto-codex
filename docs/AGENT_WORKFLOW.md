@@ -33,6 +33,7 @@
 - Merge only after required checks pass and required approvals are satisfied.
 - For solo-maintainer repositories, set required approvals to `0` while keeping PR-required and status checks enforced.
 - PR descriptions should include a Render preview link for reviewer validation (automated by workflow).
+- Dependency updates should be validated by the `dependency-review` workflow on every PR.
 
 ## Multi-agent operating model
 - Build agent: writes code and tests in a PR.
