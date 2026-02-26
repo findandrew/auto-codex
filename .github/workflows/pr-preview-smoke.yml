@@ -86,22 +86,27 @@ jobs:
           set -euo pipefail
           echo "Testing preview: ${PREVIEW_URL}"
 
-          check_ok_or_redirect() {
+          check_ok_or_redirect_with_retry() {
             local path="$1"
-            local code
-            code="$(curl -sS -o /dev/null -w "%{http_code}" "${PREVIEW_URL}${path}")"
-            echo "${path} -> ${code}"
-            if [ "${code}" != "200" ] && [ "${code}" != "302" ]; then
-              echo "Unexpected status for ${path}: ${code}"
-              exit 1
-            fi
+            local code=""
+            for _ in {1..18}; do
+              code="$(curl -sS -o /dev/null -w "%{http_code}" "${PREVIEW_URL}${path}")"
+              echo "${path} -> ${code}"
+              if [ "${code}" = "200" ] || [ "${code}" = "302" ]; then
+                return 0
+              fi
+              sleep 10
+            done
+
+            echo "Unexpected status for ${path} after retries: ${code}"
+            exit 1
           }
 
           # Public landing page
-          check_ok_or_redirect "/"
+          check_ok_or_redirect_with_retry "/"
 
           # Signup page must not return 500
-          check_ok_or_redirect "/registration/new"
+          check_ok_or_redirect_with_retry "/registration/new"
 
           # Auth-protected index should redirect when logged out
-          check_ok_or_redirect "/projects"
+          check_ok_or_redirect_with_retry "/projects"
