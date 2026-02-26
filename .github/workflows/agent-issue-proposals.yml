@@ -59,7 +59,7 @@ jobs:
             body="$(jq -r ".[$i].body" tmp/issue_proposals.json)"
             labels="$(jq -r ".[$i].labels | join(\",\")" tmp/issue_proposals.json)"
 
-            if printf '%s\n' "${existing_titles}" | rg -xF -- "${title}" >/dev/null; then
+            if printf '%s\n' "${existing_titles}" | grep -Fx -- "${title}" >/dev/null; then
               echo "Skipping duplicate: ${title}"
               continue
             fi
