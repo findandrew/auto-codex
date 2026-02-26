@@ -36,6 +36,19 @@
 - PR descriptions should include a Render preview link for reviewer validation (automated by workflow).
 - PRs should pass preview smoke checks (`pr-preview-smoke`) so reviewer-facing routes do not return 5xx on Render previews.
 - Dependency updates should be validated by the `dependency-review` workflow on every PR.
+- PR preview screenshots should be captured by `pr-playwright-preview-artifacts` and attached as Actions artifacts for reviewer validation.
+
+## GitHub App Agent Loop
+- Wake-word feedback:
+  - Add a PR comment containing `@auto-codex <instruction>`.
+  - `agent-pr-feedback` validates trusted commenter association (`OWNER`, `MEMBER`, `COLLABORATOR`) and records execution in `docs/agent_runs/pr-<number>.md`.
+  - The workflow posts an app-authored PR comment with status and commit SHA.
+- Issue proposal drafting:
+  - Maintain backlog sources in `docs/ROADMAP.md` and `docs/CUSTOMER_FEEDBACK.md`.
+  - `agent-issue-proposals` (manual + weekly) opens non-duplicate proposal issues labeled `proposal` plus source labels.
+- PR QA evidence:
+  - `pr-playwright-preview-artifacts` captures screenshots from Render preview and uploads `output/playwright` artifacts.
+  - The workflow comments on the PR with the Actions run URL for artifact download.
 
 ## Multi-agent operating model
 - Build agent: writes code and tests in a PR.

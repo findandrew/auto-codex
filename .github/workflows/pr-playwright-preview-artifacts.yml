@@ -1,0 +1,120 @@
+name: pr-playwright-preview-artifacts
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: read
+  deployments: read
+  pull-requests: write
+  actions: read
+
+concurrency:
+  group: pr-playwright-preview-artifacts-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve preview URL from deployments
+        id: preview
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import time
+          import urllib.parse
+          import urllib.request
+
+          token = os.environ["GITHUB_TOKEN"]
+          repo = os.environ["GITHUB_REPOSITORY"]
+          head_sha = os.environ["PR_HEAD_SHA"]
+
+          api_base = f"https://api.github.com/repos/{repo}"
+          headers = {
+              "Authorization": f"Bearer {token}",
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+              "User-Agent": "codex-pr-playwright-preview-artifacts",
+          }
+
+          def gh_json(url):
+              req = urllib.request.Request(url, headers=headers, method="GET")
+              with urllib.request.urlopen(req) as r:
+                  return json.loads(r.read().decode())
+
+          preview_url = ""
+          for _ in range(18):
+              q = urllib.parse.urlencode({"sha": head_sha, "per_page": 100})
+              deployments = gh_json(f"{api_base}/deployments?{q}")
+              for dep in deployments:
+                  dep_id = dep.get("id")
+                  if not dep_id:
+                      continue
+                  statuses = gh_json(f"{api_base}/deployments/{dep_id}/statuses?per_page=100")
+                  for status in statuses:
+                      env_url = status.get("environment_url")
+                      if env_url and "onrender.com" in env_url:
+                          preview_url = env_url.rstrip("/")
+                          break
+                  if preview_url:
+                      break
+              if preview_url:
+                  break
+              time.sleep(10)
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write(f"preview_url={preview_url}\n")
+          PY
+
+      - name: Skip when preview URL is unavailable
+        if: steps.preview.outputs.preview_url == ''
+        run: |
+          echo "No Render preview URL found yet."
+
+      - name: Setup Node
+        if: steps.preview.outputs.preview_url != ''
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Playwright runtime
+        if: steps.preview.outputs.preview_url != ''
+        run: |
+          npm init -y >/dev/null 2>&1 || true
+          npm install --no-save playwright@1.55.1
+          npx playwright install --with-deps chromium
+
+      - name: Capture screenshots from preview
+        if: steps.preview.outputs.preview_url != ''
+        env:
+          PREVIEW_URL: ${{ steps.preview.outputs.preview_url }}
+        run: node .github/scripts/playwright_preview_capture.mjs "${PREVIEW_URL}"
+
+      - name: Upload screenshots artifact
+        if: steps.preview.outputs.preview_url != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-preview-pr-${{ github.event.pull_request.number }}
+          path: output/playwright
+          if-no-files-found: error
+
+      - name: Comment artifact location on PR
+        if: steps.preview.outputs.preview_url != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          body="Playwright preview screenshots captured. Artifact: ${RUN_URL}"
+          gh api repos/${REPO}/issues/${PR_NUMBER}/comments -f body="${body}" >/dev/null
