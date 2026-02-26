@@ -52,13 +52,14 @@ jobs:
             exit 0
           fi
 
+          existing_titles="$(gh issue list --repo "${REPOSITORY}" --state open --limit 500 --json title -q '.[].title')"
+
           for i in $(seq 0 $((count - 1))); do
             title="$(jq -r ".[$i].title" tmp/issue_proposals.json)"
             body="$(jq -r ".[$i].body" tmp/issue_proposals.json)"
             labels="$(jq -r ".[$i].labels | join(\",\")" tmp/issue_proposals.json)"
 
-            existing="$(gh issue list --repo "${REPOSITORY}" --state open --search "in:title \"${title}\"" --json title -q '.[].title' | rg -x "${title}" || true)"
-            if [ -n "${existing}" ]; then
+            if printf '%s\n' "${existing_titles}" | rg -xF -- "${title}" >/dev/null; then
               echo "Skipping duplicate: ${title}"
               continue
             fi
@@ -66,4 +67,5 @@ jobs:
             tmp_body="$(mktemp)"
             printf '%s\n\n_Opened automatically by agent-issue-proposals workflow._\n' "${body}" > "${tmp_body}"
             gh issue create --repo "${REPOSITORY}" --title "${title}" --body-file "${tmp_body}" --label "${labels}"
+            existing_titles="$(printf '%s\n%s\n' "${existing_titles}" "${title}")"
           done
