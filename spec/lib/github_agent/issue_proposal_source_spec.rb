@@ -11,11 +11,15 @@ RSpec.describe GithubAgent::IssueProposalSource do
       FileUtils.mkdir_p(File.join(dir, "docs"))
       File.write(File.join(dir, "docs/ROADMAP.md"), <<~MD)
         # Roadmap
+        - [ ] This should be ignored because it is outside Candidate Items
+        ## Candidate Items
         - [ ] Add export endpoint
         - [x] Done item
       MD
       File.write(File.join(dir, "docs/CUSTOMER_FEEDBACK.md"), <<~MD)
         # Customer Feedback
+        - This should be ignored because it is outside Signals
+        ## Signals
         - Need CSV export for reports
         - Need CSV export for reports
       MD
