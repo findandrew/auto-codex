@@ -108,6 +108,13 @@ jobs:
             echo "commit_sha=$(git rev-parse HEAD)" >> "${GITHUB_OUTPUT}"
           fi
 
+      - name: Trigger CI for agent commit
+        if: steps.pr.outputs.head_repo == github.repository && steps.commit.outputs.committed == 'true'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh workflow run ci.yml --ref "${{ steps.pr.outputs.head_ref }}"
+
       - name: Comment on PR
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
